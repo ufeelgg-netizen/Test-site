@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محول .mcstructure إلى JSON | باستخدام prismarine-nbt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c32 0%, #2a5a4a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.98);
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 1300px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            color: #1e3c32;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 3px solid #2a5a4a;
+            padding-bottom: 15px;
+        }
+        
+        h1::before {
+            content: "🏗️";
+            font-size: 1.2em;
+        }
+        
+        .subtitle {
+            color: #4a6b5f;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            background: #e8f0ed;
+            padding: 15px 20px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        
+        .success-box {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-right: 4px solid #28a745;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+        }
+        
+        .upload-area {
+            border: 4px dashed #4a6b5f;
+            border-radius: 25px;
+            padding: 50px;
+            text-align: center;
+            background-color: #f8faf9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+        
+        .upload-area:hover {
+            border-color: #1e3c32;
+            background-color: #e8f0ed;
+            transform: scale(1.01);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .upload-text {
+            font-size: 1.5em;
+            color: #1e3c32;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .file-info {
+            background: linear-gradient(135deg, #e8f0ed, #d8e5e0);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #2a5a4a;
+        }
+        
+        .file-name {
+            color: #1e3c32;
+            font-weight: bold;
+            font-size: 1.2em;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .file-name::before {
+            content: "📄";
+        }
+        
+        .file-size {
+            background-color: #1e3c32;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c32, #2a5a4a);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2a5a4a, #1e3c32);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #e0e8e4, #d0ddd6);
+            color: #1e3c32;
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #d0ddd6, #e0e8e4);
+            transform: translateY(-3px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-box {
+            background: #f8faf9;
+            border: 2px solid #2a5a4a;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #4a6b5f;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            color: #1e3c32;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .output-section {
+            margin-top: 30px;
+            border-top: 3px solid #e0e8e4;
+            padding-top: 25px;
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .output-title {
+            color: #1e3c32;
+            font-size: 1.5em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .output-title::before {
+            content: "📊";
+        }
+        
+        .json-container {
+            background: #1e1e2f;
+            color: #d4d4d4;
+            border-radius: 15px;
+            padding: 25px;
+            max-height: 600px;
+            overflow: auto;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            border: 2px solid #2a5a4a;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-right: 6px solid #dc3545;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1em;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 4px solid #e0e8e4;
+            border-top: 4px solid #1e3c32;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .json-string { color: #ce9178; }
+        .json-number { color: #b5cea8; }
+        .json-boolean { color: #569cd6; }
+        .json-null { color: #569cd6; }
+        .json-key { color: #9cdcfe; }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #6b8a7c;
+            font-size: 1em;
+            padding-top: 20px;
+            border-top: 2px solid #e0e8e4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>محول ملفات هياكل ماين كرافت</h1>
+        <div class="subtitle">✨ تحويل ملفات .mcstructure إلى JSON باستخدام مكتبة prismarine-nbt</div>
+        
+        <div id="libraryStatus" class="success-box">
+            ✅ مكتبة prismarine-nbt جاهزة للعمل
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📂</div>
+            <div class="upload-text">اضغط لاختيار ملف أو اسحب وأفلت هنا</div>
+            <div style="color: #6b8a7c; margin-top: 10px;">يدعم فقط ملفات .mcstructure</div>
+            <input type="file" id="fileInput" accept=".mcstructure" style="display: none;">
+        </div>
+        
+        <div id="fileInfo" class="file-info" style="display: none;">
+            <span class="file-name" id="fileName"></span>
+            <span class="file-size" id="fileSize"></span>
+        </div>
+        
+        <div id="statsSection" class="stats-container" style="display: none;">
+            <div class="stat-box">
+                <div class="stat-label">أبعاد الهيكل</div>
+                <div class="stat-value" id="structureSize">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">عدد البلوكات</div>
+                <div class="stat-value" id="blockCount">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">عدد البلوكات الفريدة</div>
+                <div class="stat-value" id="paletteCount">-</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">عدد الكيانات</div>
+                <div class="stat-value" id="entityCount">-</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-primary" id="convertBtn">
+                <span>🔄</span> تحويل إلى JSON
+            </button>
+            <button class="btn-success" id="downloadBtn">
+                <span>📥</span> تحميل JSON
+            </button>
+            <button class="btn-secondary" id="clearBtn">
+                <span>🗑️</span> مسح الكل
+            </button>
+            <span id="loadingIndicator" class="loading" style="display: none;"></span>
+        </div>
+        
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <span>⚠️</span>
+            <span id="errorText"></span>
+        </div>
+        
+        <div class="output-section">
+            <div class="output-header">
+                <span class="output-title">محتوى JSON</span>
+                <span id="outputStats" style="color: #4a6b5f;"></span>
+            </div>
+            <pre id="jsonOutput" class="json-container">📌 انتظر حتى تقوم بتحميل ملف واختيار "تحويل إلى JSON"</pre>
+        </div>
+        
+        <footer>
+            <p>تم التطوير باستخدام مكتبة prismarine-nbt | جميع الحقوق محفوظة © 2026</p>
+        </footer>
+    </div>
+    
+    <!-- استخدام مكتبة prismarine-nbt مباشرة من CDN -->
+    <script src="https://unpkg.com/prismarine-nbt@2.8.0"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // التحقق من وجود المكتبة
+            if (typeof nbt === 'undefined') {
+                document.getElementById('libraryStatus').innerHTML = '❌ مكتبة prismarine-nbt غير متوفرة. تأكد من اتصالك بالإنترنت.';
+                document.getElementById('libraryStatus').style.backgroundColor = '#f8d7da';
+                document.getElementById('libraryStatus').style.color = '#721c24';
+            }
+            
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const convertBtn = document.getElementById('convertBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const jsonOutput = document.getElementById('jsonOutput');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const statsSection = document.getElementById('statsSection');
+            
+            // عناصر الإحصائيات
+            const structureSize = document.getElementById('structureSize');
+            const blockCount = document.getElementById('blockCount');
+            const paletteCount = document.getElementById('paletteCount');
+            const entityCount = document.getElementById('entityCount');
+            
+            let currentFile = null;
+            let currentJsonData = null;
+            
+            // رفع الملف
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) handleFileSelect(e.target.files[0]);
+            });
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#1e3c32';
+                uploadArea.style.backgroundColor = '#e8f0ed';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = '#4a6b5f';
+                uploadArea.style.backgroundColor = '#f8faf9';
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#4a6b5f';
+                uploadArea.style.backgroundColor = '#f8faf9';
+                
+                if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+            });
+            
+            function handleFileSelect(file) {
+                if (!file.name.toLowerCase().endsWith('.mcstructure')) {
+                    showError('الرجاء اختيار ملف بامتداد .mcstructure فقط');
+                    return;
+                }
+                
+                currentFile = file;
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'flex';
+                statsSection.style.display = 'none';
+                currentJsonData = null;
+                jsonOutput.textContent = '📁 تم تحميل الملف. اضغط على "تحويل إلى JSON" لعرض المحتوى.';
+                hideError();
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.style.display = 'flex';
+                loadingIndicator.style.display = 'none';
+            }
+            
+            function hideError() {
+                errorMessage.style.display = 'none';
+            }
+            
+            // تحويل الملف إلى JSON باستخدام prismarine-nbt
+            convertBtn.addEventListener('click', async () => {
+                if (!currentFile) {
+                    showError('الرجاء اختيار ملف أولاً');
+                    return;
+                }
+                
+                if (typeof nbt === 'undefined') {
+                    showError('مكتبة NBT غير متوفرة. تأكد من اتصالك بالإنترنت.');
+                    return;
+                }
+                
+                try {
+                    loadingIndicator.style.display = 'inline-block';
+                    hideError();
+                    jsonOutput.textContent = '🔍 جاري تحليل الملف...';
+                    
+                    // قراءة الملف
+                    const arrayBuffer = await readFileAsArrayBuffer(currentFile);
+                    
+                    // فك ترميز NBT باستخدام prismarine-nbt
+                    nbt.parse(arrayBuffer, function(error, data) {
+                        loadingIndicator.style.display = 'none';
+                        
+                        if (error) {
+                            showError('خطأ في فك ترميز NBT: ' + error.message);
+                            return;
+                        }
+                        
+                        try {
+                            // تنظيف وعرض البيانات
+                            const cleanData = JSON.parse(JSON.stringify(data, (key, value) => {
+                                // تحويل القيم الخاصة إلى صيغة مقروءة
+                                if (value && value.type && value.value !== undefined) {
+                                    return value.value;
+                                }
+                                return value;
+                            }));
+                            
+                            // إضافة معلومات إضافية
+                            cleanData.fileInfo = {
+                                name: currentFile.name,
+                                size: formatFileSize(currentFile.size),
+                                parsedAt: new Date().toISOString()
+                            };
+                            
+                            // محاولة استخراج إحصائيات مفيدة
+                            try {
+                                if (cleanData.value && cleanData.value.size) {
+                                    const size = cleanData.value.size;
+                                    structureSize.textContent = `${size.x?.value || '?'} x ${size.y?.value || '?'} x ${size.z?.value || '?'}`;
+                                }
+                                
+                                if (cleanData.value && cleanData.value.structure) {
+                                    const structure = cleanData.value.structure;
+                                    if (structure.block_indices) {
+                                        const indices = structure.block_indices;
+                                        blockCount.textContent = formatNumber(indices.value?.length || 0);
+                                    }
+                                    if (structure.palette) {
+                                        paletteCount.textContent = formatNumber(structure.palette.value?.length || 0);
+                                    }
+                                    if (structure.entities) {
+                                        entityCount.textContent = formatNumber(structure.entities.value?.length || 0);
+                                    }
+                                }
+                                
+                                statsSection.style.display = 'grid';
+                            } catch (e) {
+                                console.log('Could not extract stats:', e);
+                            }
+                            
+                            currentJsonData = cleanData;
+                            
+                            // تنسيق وعرض JSON
+                            const formattedJson = JSON.stringify(cleanData, null, 2);
+                            jsonOutput.innerHTML = syntaxHighlight(formattedJson);
+                            
+                            document.getElementById('outputStats').textContent = `📦 ${formattedJson.length.toLocaleString()} حرف`;
+                            
+                        } catch (e) {
+                            showError('خطأ في معالجة البيانات: ' + e.message);
+                        }
+                    });
+                    
+                } catch (error) {
+                    loadingIndicator.style.display = 'none';
+                    showError('حدث خطأ: ' + error.message);
+                }
+            });
+            
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            
+            function syntaxHighlight(json) {
+                json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+                    let cls = 'json-number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'json-key';
+                        } else {
+                            cls = 'json-string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'json-boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'json-null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            }
+            
+            function readFileAsArrayBuffer(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(new Error('فشل قراءة الملف'));
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+            
+            // تحميل ملف JSON
+            downloadBtn.addEventListener('click', () => {
+                if (!currentJsonData) {
+                    showError('لا توجد بيانات JSON للتحميل');
+                    return;
+                }
+                
+                try {
+                    const jsonString = JSON.stringify(currentJsonData, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = currentFile.name.replace('.mcstructure', '.json') || 'structure.json';
+                    a.click();
+                    
+                    URL.revokeObjectURL(url);
+                    
+                    // رسالة نجاح سريعة
+                    const oldText = jsonOutput.textContent;
+                    jsonOutput.textContent = '✅ تم تحميل الملف بنجاح!';
+                    setTimeout(() => {
+                        if (currentJsonData) {
+                            jsonOutput.innerHTML = syntaxHighlight(JSON.stringify(currentJsonData, null, 2));
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    showError('حدث خطأ أثناء التحميل: ' + error.message);
+                }
+            });
+            
+            // مسح البيانات
+            clearBtn.addEventListener('click', () => {
+                currentFile = null;
+                currentJsonData = null;
+                fileInfo.style.display = 'none';
+                statsSection.style.display = 'none';
+                jsonOutput.textContent = '📌 انتظر حتى تقوم بتحميل ملف واختيار "تحويل إلى JSON"';
+                fileInput.value = '';
+                hideError();
+                loadingIndicator.style.display = 'none';
+                document.getElementById('outputStats').textContent = '';
+            });
+        });
+    </script>
+</body>
+</html>
