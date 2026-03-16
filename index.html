@@ -348,18 +348,13 @@
             totalCoordinates = 0;
             modifiedCoordinates = 0;
             
-            // نمط للبحث عن كل الإحداثيات [X, Y, Z]
             const pattern = /\[([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*)\]/g;
             
             let newText = text.replace(pattern, (match, x, y, z) => {
                 totalCoordinates++;
-                
-                // تحويل النص إلى أرقام وزيادة Y بمقدار 6
                 let yNum = parseFloat(y);
                 let newY = yNum + 6;
-                
                 modifiedCoordinates++;
-                
                 return `[${x}, ${newY}, ${z}]`;
             });
             
@@ -368,13 +363,11 @@
 
         // ✅ دالة لتعديل الـ hologram_root والـ b_*_*_*
         function modifySpecialCoordinates(text) {
-            // تعديل hologram_root
             text = text.replace(/"hologram_root":\s*\[([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*)\]/g, (match, x, y, z) => {
                 let newY = parseFloat(y) + 6;
                 return `"hologram_root": [${x}, ${newY}, ${z}]`;
             });
             
-            // تعديل كل الـ b_*_*_*
             text = text.replace(/"b_[0-9]+_[0-9]+_[0-9]+":\s*\[([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*)\]/g, (match, x, y, z) => {
                 let newY = parseFloat(y) + 6;
                 return `${match.split('[')[0]}[${x}, ${newY}, ${z}]`;
@@ -383,15 +376,16 @@
             return text;
         }
 
-        // ✅ دالة تعديل render controllers
+        // ✅ دالة تعديل render controllers - التعديل المطلوب بالضبط
         function modifyRenderControllers(text) {
-            // النص القديم المراد استبداله
-            const oldPattern = /"geometry"\s*:\s*"Array\.geometries\[v\.hologram\.structure_index\]"/;
+            // النص القديم
+            const oldText = 'Array.geometries[v.hologram.structure_index]';
             
             // النص الجديد
-            const newCode = '"geometry": "v.is_ridden = q.has_rider; v.layer_change = (v.is_ridden && !v.last_ridden) ? 1 : 0; v.last_ridden = v.is_ridden; v.hologram.layer = (v.hologram.layer ?? 0) + v.layer_change; v.idx = math.trunc(math.mod(v.hologram.layer, 1)); return Array.geometries[v.idx];"';
+            const newText = 'v.is_ridden = q.has_rider; v.layer_change = (v.is_ridden && !v.last_ridden) ? 1 : 0; v.last_ridden = v.is_ridden; v.hologram.layer = (v.hologram.layer ?? 0) + v.layer_change; v.idx = math.trunc(math.mod(v.hologram.layer, 1)); return Array.geometries[v.idx];';
             
-            return text.replace(oldPattern, newCode);
+            // استبدال النص
+            return text.replace(oldText, newText);
         }
 
         // ✅ دالة التحميل
@@ -447,21 +441,21 @@
                 pack.file('pack_icon.png', donutImage);
                 addLog('✓ تم إضافة الصورة');
 
-                // 3. ✅ تعديل render controllers (الأمر الجديد)
+                // 3. ✅ تعديل render controllers بالطريقة المطلوبة
                 const renderFile = pack.file('holoprint.hologram.render_controllers.json');
                 if (renderFile) {
                     let data = await renderFile.async('string');
                     let modifiedData = modifyRenderControllers(data);
                     
-                    // التحقق إذا تم التعديل
                     if (modifiedData !== data) {
                         pack.file('holoprint.hologram.render_controllers.json', modifiedData);
                         addLog('✓ تم تعديل render_controllers');
+                        addLog('📝 Array.geometries[...] → الكود الجديد');
                     } else {
-                        addLog('⚠️ لم يتم العثور على النص المطلوب في render_controllers');
+                        addLog('⚠️ لم يتم العثور على النص المطلوب');
                     }
                 } else {
-                    addLog('⚠️ لم يتم العثور على holoprint.hologram.render_controllers.json');
+                    addLog('⚠️ لم يتم العثور على الملف');
                 }
 
                 // 4. تعديل ملف holoprint.hologram.geo.json
@@ -475,13 +469,11 @@
                     pack.file('holoprint.hologram.geo.json', modifiedData);
                     
                     updateStats();
-                    addLog(`✓ تم تعديل ${modifiedCoordinates} إحداثي في geo.json`);
+                    addLog(`✓ تم تعديل ${modifiedCoordinates} إحداثي`);
                     
                     if (modifiedCoordinates > 0) {
-                        addLog(`📍 مثال: [0, 0, 0] ← [0, 6, 0]`);
+                        addLog(`📍 مثال: [0, 0, 0] → [0, 6, 0]`);
                     }
-                } else {
-                    addLog('⚠️ لم يتم العثور على geo.json');
                 }
 
                 // 5. تعديل أي ملفات geometry أخرى
@@ -518,17 +510,15 @@
             }
         });
 
-        // استخدام دالة handleDownload للتحميل
+        // تحميل الملف
         downloadBtn.addEventListener('click', () => {
             if (modifiedZip && mcpackFile) {
-                // تجهيز اسم الملف
                 let resultName = mcpackFile.name;
                 if (!resultName.endsWith('.mcpack')) {
                     resultName = resultName.replace(/\.zip$/, '') + '.mcpack';
                 }
                 resultName = resultName.replace('.mcpack', '_modified.mcpack');
                 
-                // استخدام الدالة
                 handleDownload(modifiedZip, resultName);
                 addLog(`↓ جاري التحميل...`);
             }
