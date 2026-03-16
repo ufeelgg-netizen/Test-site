@@ -18,121 +18,112 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px;
+            padding: 12px;
         }
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 380px;
         }
 
         .card {
             background: #1e293b;
-            border-radius: 32px;
-            padding: 24px;
+            border-radius: 28px;
+            padding: 20px;
             border: 1px solid #334155;
-            box-shadow: 0 20px 40px -12px black;
         }
 
-        /* خانة رفع الملف فقط */
         .upload-area {
             background: #0f172a;
-            border-radius: 28px;
-            padding: 40px 20px;
+            border-radius: 24px;
+            padding: 32px 16px;
             border: 2px dashed #3b82f6;
-            transition: all 0.2s;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
-            min-height: 220px;
+            margin-bottom: 16px;
+            min-height: 180px;
         }
 
-        .upload-area:hover,
         .upload-area.dragover {
             border-color: #22c55e;
             background: #1a2e2a;
         }
 
         .upload-icon {
-            font-size: 56px;
-            margin-bottom: 16px;
+            font-size: 48px;
+            margin-bottom: 12px;
             color: #94a3b8;
         }
 
         .upload-text {
             color: #f1f5f9;
-            font-size: 16px;
-            font-weight: 500;
-            margin-bottom: 8px;
+            font-size: 15px;
+            margin-bottom: 6px;
         }
 
         .file-name {
             color: #94a3b8;
-            font-size: 13px;
+            font-size: 12px;
             text-align: center;
             word-break: break-all;
             max-width: 100%;
-            padding: 0 12px;
+            padding: 0 8px;
         }
 
-        /* إحصائيات */
         .stats {
             display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
         .stat {
             background: #0f172a;
-            border-radius: 20px;
-            padding: 14px 8px;
+            border-radius: 16px;
+            padding: 12px 4px;
             flex: 1;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             color: #3b82f6;
             margin-bottom: 2px;
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
         }
 
-        /* سجل */
         .log {
             background: #0f172a;
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 20px;
-            height: 120px;
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 16px;
+            height: 100px;
             overflow-y: auto;
             font-family: 'Monaco', monospace;
-            font-size: 12px;
+            font-size: 11px;
             color: #22c55e;
             border: 1px solid #334155;
         }
 
         .log-entry {
-            padding: 4px 0;
+            padding: 3px 0;
             border-bottom: 1px solid #1e293b;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* تحميل */
         .loading {
             display: none;
             text-align: center;
-            margin: 12px 0;
+            margin: 8px 0;
         }
 
         .loading.show {
@@ -140,9 +131,9 @@
         }
 
         .spinner {
-            width: 28px;
-            height: 28px;
-            border: 3px solid #334155;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #334155;
             border-top-color: #3b82f6;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -153,21 +144,19 @@
             to { transform: rotate(360deg); }
         }
 
-        /* أزرار */
         .actions {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
         .btn {
             flex: 1;
-            padding: 16px 12px;
-            border-radius: 30px;
+            padding: 14px 10px;
+            border-radius: 26px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             border: none;
             cursor: pointer;
-            transition: all 0.2s;
             background: #334155;
             color: #f1f5f9;
         }
@@ -197,53 +186,47 @@
             cursor: not-allowed;
         }
 
-        /* توقيع صغير */
         .footer {
             text-align: center;
-            margin-top: 16px;
+            margin-top: 12px;
             color: #334155;
-            font-size: 11px;
+            font-size: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <!-- خانة رفع ملف واحدة -->
             <div class="upload-area" id="uploadArea">
                 <div class="upload-icon" id="uploadIcon">📦</div>
-                <div class="upload-text" id="uploadText">اضغط أو اسحب ملف</div>
+                <div class="upload-text" id="uploadText">اضغط أو اسحب ملف .mcpack</div>
                 <div class="file-name" id="fileName"></div>
                 <input type="file" id="fileInput" accept=".mcpack,application/zip" style="display: none;">
             </div>
 
-            <!-- إحصائيات -->
             <div class="stats">
                 <div class="stat">
                     <div class="stat-value" id="fileSize">0</div>
                     <div class="stat-label">حجم</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-value" id="locatorsCount">0</div>
-                    <div class="stat-label">موقعات</div>
+                    <div class="stat-value" id="coordinatesCount">0</div>
+                    <div class="stat-label">إحداثيات</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value" id="modifiedCount">0</div>
-                    <div class="stat-label">تعديل</div>
+                    <div class="stat-label">تم تعديل</div>
                 </div>
             </div>
 
-            <!-- سجل -->
             <div class="log" id="log">
                 <div class="log-entry">جاهز</div>
             </div>
 
-            <!-- تحميل -->
             <div class="loading" id="loading">
                 <div class="spinner"></div>
             </div>
 
-            <!-- أزرار -->
             <div class="actions">
                 <button class="btn btn-primary" id="processBtn" disabled>معالجة</button>
                 <button class="btn btn-success" id="downloadBtn" disabled>تحميل</button>
@@ -255,7 +238,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
-        // عناصر
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
         const fileName = document.getElementById('fileName');
@@ -266,21 +248,14 @@
         const downloadBtn = document.getElementById('downloadBtn');
         const loading = document.getElementById('loading');
         const fileSizeSpan = document.getElementById('fileSize');
-        const locatorsSpan = document.getElementById('locatorsCount');
+        const coordinatesSpan = document.getElementById('coordinatesCount');
         const modifiedSpan = document.getElementById('modifiedCount');
 
-        // متغيرات
         let mcpackFile = null;
         let modifiedZip = null;
-        let stats = {
-            locators: 0,
-            origins: 0,
-            pivots: 0,
-            positions: 0,
-            locatorsMod: 0
-        };
+        let totalCoordinates = 0;
+        let modifiedCoordinates = 0;
 
-        // إنشاء صورة دونات
         function createDonutImage() {
             const canvas = document.createElement('canvas');
             canvas.width = 64;
@@ -318,7 +293,6 @@
 
         const donutImage = dataURLToBlob(createDonutImage());
 
-        // سجل
         function addLog(text) {
             const entry = document.createElement('div');
             entry.className = 'log-entry';
@@ -330,14 +304,11 @@
             }
         }
 
-        // تحديث إحصائيات
         function updateStats() {
-            const total = stats.origins + stats.pivots + stats.positions + stats.locatorsMod;
-            locatorsSpan.textContent = stats.locators;
-            modifiedSpan.textContent = total;
+            coordinatesSpan.textContent = totalCoordinates;
+            modifiedSpan.textContent = modifiedCoordinates;
         }
 
-        // رفع ملف
         uploadArea.addEventListener('click', () => fileInput.click());
 
         uploadArea.addEventListener('dragover', (e) => {
@@ -372,156 +343,176 @@
             processBtn.disabled = false;
         }
 
-        // تعديل geometry
-        function modifyGeometry(json) {
-            let modified = false;
-
-            function traverse(obj) {
-                if (!obj || typeof obj !== 'object') return obj;
-
-                if (Array.isArray(obj)) {
-                    return obj.map(item => traverse(item));
-                }
-
-                const result = {};
-                for (let key in obj) {
-                    let val = obj[key];
-
-                    if (key === 'origin' || key === 'pivot') {
-                        if (Array.isArray(val) && val.length === 3) {
-                            if (key === 'origin') stats.origins++;
-                            if (key === 'pivot') stats.pivots++;
-                            result[key] = [val[0], val[1] + 6, val[2]];
-                            modified = true;
-                            continue;
-                        }
-                    }
-
-                    if (key === 'locators' && typeof val === 'object') {
-                        stats.locators += Object.keys(val).length;
-                        const newLoc = {};
-                        for (let loc in val) {
-                            const v = val[loc];
-                            if (Array.isArray(v) && v.length === 3) {
-                                newLoc[loc] = [v[0], v[1] + 6, v[2]];
-                                stats.locatorsMod++;
-                                modified = true;
-                            } else {
-                                newLoc[loc] = traverse(v);
-                            }
-                        }
-                        result[key] = newLoc;
-                        continue;
-                    }
-
-                    if (key === 'positions' && Array.isArray(val)) {
-                        const newPos = [];
-                        for (let pos of val) {
-                            if (Array.isArray(pos) && pos.length === 3) {
-                                newPos.push([pos[0], pos[1] + 6, pos[2]]);
-                                stats.positions++;
-                                modified = true;
-                            } else {
-                                newPos.push(traverse(pos));
-                            }
-                        }
-                        result[key] = newPos;
-                        continue;
-                    }
-
-                    result[key] = traverse(val);
-                }
-                return result;
-            }
-
-            return { modified, data: traverse(json) };
+        // ✅ دالة لتعديل كل الإحداثيات
+        function modifyAllCoordinates(text) {
+            totalCoordinates = 0;
+            modifiedCoordinates = 0;
+            
+            // نمط للبحث عن كل الإحداثيات [X, Y, Z]
+            const pattern = /\[([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*)\]/g;
+            
+            let newText = text.replace(pattern, (match, x, y, z) => {
+                totalCoordinates++;
+                
+                // تحويل النص إلى أرقام وزيادة Y بمقدار 6
+                let yNum = parseFloat(y);
+                let newY = yNum + 6;
+                
+                modifiedCoordinates++;
+                
+                return `[${x}, ${newY}, ${z}]`;
+            });
+            
+            return newText;
         }
 
-        // معالجة
+        // ✅ دالة لتعديل الـ hologram_root والـ b_*_*_*
+        function modifySpecialCoordinates(text) {
+            // تعديل hologram_root
+            text = text.replace(/"hologram_root":\s*\[([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*)\]/g, (match, x, y, z) => {
+                let newY = parseFloat(y) + 6;
+                return `"hologram_root": [${x}, ${newY}, ${z}]`;
+            });
+            
+            // تعديل كل الـ b_*_*_*
+            text = text.replace(/"b_[0-9]+_[0-9]+_[0-9]+":\s*\[([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*),\s*([-]?\d+\.?\d*)\]/g, (match, x, y, z) => {
+                let newY = parseFloat(y) + 6;
+                return `${match.split('[')[0]}[${x}, ${newY}, ${z}]`;
+            });
+            
+            return text;
+        }
+
+        // ✅ دالة التحميل المطلوبة
+        function handleDownload(resultBlob, resultName) {
+            if (!resultBlob) return;
+            
+            var fixedBlob = new Blob([resultBlob], { type: "application/octet-stream" });
+            var url = URL.createObjectURL(fixedBlob);
+            var a = document.createElement("a");
+            a.href = url;
+
+            var filename = resultName;
+
+            if (filename.endsWith(".mcpack.zip"))
+                filename = filename.replace(".mcpack.zip", ".mcpack");
+
+            if (!filename.endsWith(".mcpack"))
+                filename = filename.replace(/\.(zip)$/i, ".mcpack");
+
+            a.download = filename;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
         processBtn.addEventListener('click', async () => {
             if (!mcpackFile) return;
 
-            stats = { locators: 0, origins: 0, pivots: 0, positions: 0, locatorsMod: 0 };
+            totalCoordinates = 0;
+            modifiedCoordinates = 0;
+            
             loading.classList.add('show');
             processBtn.disabled = true;
-            addLog('⚙️ معالجة...');
+            addLog('⚙️ جاري المعالجة...');
 
             try {
                 const zip = new JSZip();
                 const content = await mcpackFile.arrayBuffer();
                 const pack = await zip.loadAsync(content);
 
-                // entity
+                // 1. تعديل entity
                 const entity = pack.file('entity/armor_stand.entity.json');
                 if (entity) {
                     let data = await entity.async('string');
                     data = data.replace('"identifier":"minecraft:armor_stand"', '"identifier":"minecraft:minecart"');
                     pack.file('entity/armor_stand.entity.json', data);
-                    addLog('✓ entity');
+                    addLog('✓ تم تعديل entity');
                 }
 
-                // صورة
+                // 2. إضافة الصورة
                 pack.file('pack_icon.png', donutImage);
-                addLog('✓ icon');
+                addLog('✓ تم إضافة الصورة');
 
-                // render
+                // 3. تعديل render controllers
                 const render = pack.file('holoprint.hologram.render_controllers.json');
                 if (render) {
                     let data = await render.async('string');
                     const newCode = '"geometry": "v.is_ridden = q.has_rider; v.layer_change = (v.is_ridden && !v.last_ridden) ? 1 : 0; v.last_ridden = v.is_ridden; v.hologram.layer = (v.hologram.layer ?? 0) + v.layer_change; v.idx = math.trunc(math.mod(v.hologram.layer, 1)); return Array.geometries[v.idx];"';
                     data = data.replace(/"geometry"\s*:\s*"Array\.geometries\[v\.hologram\.structure_index\]"/, newCode);
                     pack.file('holoprint.hologram.render_controllers.json', data);
-                    addLog('✓ render');
+                    addLog('✓ تم تعديل render');
                 }
 
-                // geometry
-                let geoModified = false;
+                // 4. تعديل ملف holoprint.hologram.geo.json
+                const geoFile = pack.file('holoprint.hologram.geo.json');
+                if (geoFile) {
+                    let data = await geoFile.async('string');
+                    
+                    let modifiedData = modifyAllCoordinates(data);
+                    modifiedData = modifySpecialCoordinates(modifiedData);
+                    
+                    pack.file('holoprint.hologram.geo.json', modifiedData);
+                    
+                    updateStats();
+                    addLog(`✓ تم تعديل ${modifiedCoordinates} إحداثي`);
+                    
+                    if (modifiedCoordinates > 0) {
+                        addLog(`📍 مثال: [0, 0, 0] ← [0, 6, 0]`);
+                    }
+                } else {
+                    addLog('⚠️ لم يتم العثور على geo.json');
+                }
+
+                // 5. تعديل أي ملفات geometry أخرى
+                const promises = [];
                 pack.forEach((path, file) => {
-                    if (path.includes('.geo.json')) {
-                        (async () => {
-                            try {
-                                const content = await file.async('string');
-                                const json = JSON.parse(content);
-                                const { modified, data } = modifyGeometry(json);
-                                if (modified) {
-                                    pack.file(path, JSON.stringify(data, null, 2));
-                                    geoModified = true;
-                                    addLog(`✓ ${path.split('/').pop()}`);
-                                }
-                            } catch (e) {}
-                        })();
+                    if (path.includes('.geo.json') && path !== 'holoprint.hologram.geo.json') {
+                        promises.push(
+                            (async () => {
+                                try {
+                                    let data = await file.async('string');
+                                    let modifiedData = modifyAllCoordinates(data);
+                                    modifiedData = modifySpecialCoordinates(modifiedData);
+                                    pack.file(path, modifiedData);
+                                    addLog(`✓ تم تعديل ${path.split('/').pop()}`);
+                                } catch (e) {}
+                            })()
+                        );
                     }
                 });
 
-                // انتظر شوي
-                await new Promise(r => setTimeout(r, 500));
+                await Promise.all(promises);
 
-                if (stats.locatorsMod > 0) {
-                    addLog(`📍 ${stats.locatorsMod} موقعات`);
-                }
-
+                // حفظ الملف
                 modifiedZip = await pack.generateAsync({ type: 'blob' });
-                updateStats();
+                
                 downloadBtn.disabled = false;
-                addLog('✅ تم');
+                addLog('✅ تم الانتهاء بنجاح');
 
             } catch (err) {
-                addLog('❌ خطأ');
+                addLog('❌ حدث خطأ: ' + err.message);
+                console.error(err);
             } finally {
                 loading.classList.remove('show');
             }
         });
 
-        // تحميل
+        // استخدام دالة handleDownload للتحميل
         downloadBtn.addEventListener('click', () => {
-            if (modifiedZip) {
-                const url = URL.createObjectURL(modifiedZip);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = mcpackFile.name.replace('.mcpack', '_modified.mcpack');
-                a.click();
-                URL.revokeObjectURL(url);
-                addLog('↓ تحميل');
+            if (modifiedZip && mcpackFile) {
+                // تجهيز اسم الملف
+                let resultName = mcpackFile.name;
+                if (!resultName.endsWith('.mcpack')) {
+                    resultName = resultName.replace(/\.zip$/, '') + '.mcpack';
+                }
+                resultName = resultName.replace('.mcpack', '_modified.mcpack');
+                
+                // استخدام الدالة المطلوبة
+                handleDownload(modifiedZip, resultName);
+                addLog(`↓ جاري التحميل...`);
             }
         });
     </script>
