@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>رافع الهولوپرنت</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 32px;
+            padding: 24px;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 40px -12px black;
+        }
+
+        /* خانة رفع الملف فقط */
+        .upload-area {
+            background: #0f172a;
+            border-radius: 28px;
+            padding: 40px 20px;
+            border: 2px dashed #3b82f6;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            min-height: 220px;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #22c55e;
+            background: #1a2e2a;
+        }
+
+        .upload-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            color: #94a3b8;
+        }
+
+        .upload-text {
+            color: #f1f5f9;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .file-name {
+            color: #94a3b8;
+            font-size: 13px;
+            text-align: center;
+            word-break: break-all;
+            max-width: 100%;
+            padding: 0 12px;
+        }
+
+        /* إحصائيات */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 14px 8px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #3b82f6;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* سجل */
+        .log {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+            height: 120px;
+            overflow-y: auto;
+            font-family: 'Monaco', monospace;
+            font-size: 12px;
+            color: #22c55e;
+            border: 1px solid #334155;
+        }
+
+        .log-entry {
+            padding: 4px 0;
+            border-bottom: 1px solid #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* تحميل */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid #334155;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* أزرار */
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:active:not(:disabled) {
+            background: #2563eb;
+            transform: scale(0.97);
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-success:active:not(:disabled) {
+            background: #16a34a;
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* توقيع صغير */
+        .footer {
+            text-align: center;
+            margin-top: 16px;
+            color: #334155;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- خانة رفع ملف واحدة -->
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon" id="uploadIcon">📦</div>
+                <div class="upload-text" id="uploadText">اضغط أو اسحب ملف</div>
+                <div class="file-name" id="fileName"></div>
+                <input type="file" id="fileInput" accept=".mcpack,application/zip" style="display: none;">
+            </div>
+
+            <!-- إحصائيات -->
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="fileSize">0</div>
+                    <div class="stat-label">حجم</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="locatorsCount">0</div>
+                    <div class="stat-label">موقعات</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="modifiedCount">0</div>
+                    <div class="stat-label">تعديل</div>
+                </div>
+            </div>
+
+            <!-- سجل -->
+            <div class="log" id="log">
+                <div class="log-entry">جاهز</div>
+            </div>
+
+            <!-- تحميل -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- أزرار -->
+            <div class="actions">
+                <button class="btn btn-primary" id="processBtn" disabled>معالجة</button>
+                <button class="btn btn-success" id="downloadBtn" disabled>تحميل</button>
+            </div>
+
+            <div class="footer">Donut SMP</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // عناصر
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const uploadIcon = document.getElementById('uploadIcon');
+        const uploadText = document.getElementById('uploadText');
+        const logDiv = document.getElementById('log');
+        const processBtn = document.getElementById('processBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loading = document.getElementById('loading');
+        const fileSizeSpan = document.getElementById('fileSize');
+        const locatorsSpan = document.getElementById('locatorsCount');
+        const modifiedSpan = document.getElementById('modifiedCount');
+
+        // متغيرات
+        let mcpackFile = null;
+        let modifiedZip = null;
+        let stats = {
+            locators: 0,
+            origins: 0,
+            pivots: 0,
+            positions: 0,
+            locatorsMod: 0
+        };
+
+        // إنشاء صورة دونات
+        function createDonutImage() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.arc(32, 32, 28, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.arc(32, 32, 12, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.font = 'bold 20px Arial';
+            ctx.fillStyle = '#0f172a';
+            ctx.textAlign = 'center';
+            ctx.fillText('D', 32, 38);
+            
+            return canvas.toDataURL('image/png');
+        }
+
+        function dataURLToBlob(dataURL) {
+            const parts = dataURL.split(',');
+            const byteString = atob(parts[1]);
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: 'image/png' });
+        }
+
+        const donutImage = dataURLToBlob(createDonutImage());
+
+        // سجل
+        function addLog(text) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = text;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            if (logDiv.children.length > 5) {
+                logDiv.removeChild(logDiv.children[0]);
+            }
+        }
+
+        // تحديث إحصائيات
+        function updateStats() {
+            const total = stats.origins + stats.pivots + stats.positions + stats.locatorsMod;
+            locatorsSpan.textContent = stats.locators;
+            modifiedSpan.textContent = total;
+        }
+
+        // رفع ملف
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && (file.name.endsWith('.mcpack') || file.name.endsWith('.zip'))) {
+                handleFile(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            mcpackFile = file;
+            fileName.textContent = file.name;
+            uploadIcon.textContent = '✅';
+            uploadText.textContent = 'تم الرفع';
+            fileSizeSpan.textContent = (file.size / 1024).toFixed(1);
+            addLog(`✓ ${file.name}`);
+            processBtn.disabled = false;
+        }
+
+        // تعديل geometry
+        function modifyGeometry(json) {
+            let modified = false;
+
+            function traverse(obj) {
+                if (!obj || typeof obj !== 'object') return obj;
+
+                if (Array.isArray(obj)) {
+                    return obj.map(item => traverse(item));
+                }
+
+                const result = {};
+                for (let key in obj) {
+                    let val = obj[key];
+
+                    if (key === 'origin' || key === 'pivot') {
+                        if (Array.isArray(val) && val.length === 3) {
+                            if (key === 'origin') stats.origins++;
+                            if (key === 'pivot') stats.pivots++;
+                            result[key] = [val[0], val[1] + 6, val[2]];
+                            modified = true;
+                            continue;
+                        }
+                    }
+
+                    if (key === 'locators' && typeof val === 'object') {
+                        stats.locators += Object.keys(val).length;
+                        const newLoc = {};
+                        for (let loc in val) {
+                            const v = val[loc];
+                            if (Array.isArray(v) && v.length === 3) {
+                                newLoc[loc] = [v[0], v[1] + 6, v[2]];
+                                stats.locatorsMod++;
+                                modified = true;
+                            } else {
+                                newLoc[loc] = traverse(v);
+                            }
+                        }
+                        result[key] = newLoc;
+                        continue;
+                    }
+
+                    if (key === 'positions' && Array.isArray(val)) {
+                        const newPos = [];
+                        for (let pos of val) {
+                            if (Array.isArray(pos) && pos.length === 3) {
+                                newPos.push([pos[0], pos[1] + 6, pos[2]]);
+                                stats.positions++;
+                                modified = true;
+                            } else {
+                                newPos.push(traverse(pos));
+                            }
+                        }
+                        result[key] = newPos;
+                        continue;
+                    }
+
+                    result[key] = traverse(val);
+                }
+                return result;
+            }
+
+            return { modified, data: traverse(json) };
+        }
+
+        // معالجة
+        processBtn.addEventListener('click', async () => {
+            if (!mcpackFile) return;
+
+            stats = { locators: 0, origins: 0, pivots: 0, positions: 0, locatorsMod: 0 };
+            loading.classList.add('show');
+            processBtn.disabled = true;
+            addLog('⚙️ معالجة...');
+
+            try {
+                const zip = new JSZip();
+                const content = await mcpackFile.arrayBuffer();
+                const pack = await zip.loadAsync(content);
+
+                // entity
+                const entity = pack.file('entity/armor_stand.entity.json');
+                if (entity) {
+                    let data = await entity.async('string');
+                    data = data.replace('"identifier":"minecraft:armor_stand"', '"identifier":"minecraft:minecart"');
+                    pack.file('entity/armor_stand.entity.json', data);
+                    addLog('✓ entity');
+                }
+
+                // صورة
+                pack.file('pack_icon.png', donutImage);
+                addLog('✓ icon');
+
+                // render
+                const render = pack.file('holoprint.hologram.render_controllers.json');
+                if (render) {
+                    let data = await render.async('string');
+                    const newCode = '"geometry": "v.is_ridden = q.has_rider; v.layer_change = (v.is_ridden && !v.last_ridden) ? 1 : 0; v.last_ridden = v.is_ridden; v.hologram.layer = (v.hologram.layer ?? 0) + v.layer_change; v.idx = math.trunc(math.mod(v.hologram.layer, 1)); return Array.geometries[v.idx];"';
+                    data = data.replace(/"geometry"\s*:\s*"Array\.geometries\[v\.hologram\.structure_index\]"/, newCode);
+                    pack.file('holoprint.hologram.render_controllers.json', data);
+                    addLog('✓ render');
+                }
+
+                // geometry
+                let geoModified = false;
+                pack.forEach((path, file) => {
+                    if (path.includes('.geo.json')) {
+                        (async () => {
+                            try {
+                                const content = await file.async('string');
+                                const json = JSON.parse(content);
+                                const { modified, data } = modifyGeometry(json);
+                                if (modified) {
+                                    pack.file(path, JSON.stringify(data, null, 2));
+                                    geoModified = true;
+                                    addLog(`✓ ${path.split('/').pop()}`);
+                                }
+                            } catch (e) {}
+                        })();
+                    }
+                });
+
+                // انتظر شوي
+                await new Promise(r => setTimeout(r, 500));
+
+                if (stats.locatorsMod > 0) {
+                    addLog(`📍 ${stats.locatorsMod} موقعات`);
+                }
+
+                modifiedZip = await pack.generateAsync({ type: 'blob' });
+                updateStats();
+                downloadBtn.disabled = false;
+                addLog('✅ تم');
+
+            } catch (err) {
+                addLog('❌ خطأ');
+            } finally {
+                loading.classList.remove('show');
+            }
+        });
+
+        // تحميل
+        downloadBtn.addEventListener('click', () => {
+            if (modifiedZip) {
+                const url = URL.createObjectURL(modifiedZip);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = mcpackFile.name.replace('.mcpack', '_modified.mcpack');
+                a.click();
+                URL.revokeObjectURL(url);
+                addLog('↓ تحميل');
+            }
+        });
+    </script>
+</body>
+</html>
